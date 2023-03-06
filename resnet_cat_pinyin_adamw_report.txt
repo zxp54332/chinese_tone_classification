@@ -1,0 +1,11 @@
+              precision    recall  f1-score   support
+
+      Tone 0       0.61      0.62      0.61    234815
+      Tone 1       0.53      0.74      0.62    280048
+      Tone 2       0.60      0.31      0.41    184535
+      Tone 3       0.66      0.74      0.70    377414
+      Tone 4       0.01      0.00      0.01     99991
+
+    accuracy                           0.59   1176803
+   macro avg       0.48      0.48      0.47   1176803
+weighted avg       0.55      0.59      0.56   1176803

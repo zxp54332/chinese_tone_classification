@@ -1,0 +1,148 @@
+CUDA_VISIBLE_DEVICES=1 python run_speech_recognition_seq2seq.py \
+	--train_metadata="train500000.csv" \
+	--eval_metadata="valid10000.csv" \
+	--model_name_or_path="wav2vec2-base-bert-uncased" \
+	--output_dir="seq2seq_test" \
+	--do_train \
+	--do_eval \
+	--seed=42 \
+	--audio_column_name="path" \
+	--text_column_name="label" \
+	--max_duration_in_seconds=1.0 \
+	--max_train_samples=500000 \
+	--max_eval_samples=10000 \
+	--per_device_train_batch_size=64 \
+	--per_device_eval_batch_size=64 \
+	--max_steps=200000 \
+	--evaluation_strategy="steps" \
+	--eval_steps=20000 \
+	--save_steps=20000 \
+	--fp16
+
+	--predict_with_generate
+	--no_cuda
+	--num_train_epochs=1 \
+
+
+CUDA_VISIBLE_DEVICES=1 python audio_spectrogram.py \
+	--train_metadata="train500000.csv" \
+	--eval_metadata="valid10000.csv" \
+	--model_name_or_path="MIT/ast-finetuned-audioset-10-10-0.4593" \
+	--output_dir="audio_spectrogram_test_cosine" \
+	--do_train \
+	--do_eval \
+	--seed=42 \
+	--audio_column_name="path" \
+	--ignore_mismatched_sizes \
+	--max_train_samples=500000 \
+	--max_eval_samples=10000 \
+	--per_device_train_batch_size=64 \
+	--per_device_eval_batch_size=64 \
+	--max_steps=200000 \
+	--evaluation_strategy="steps" \
+	--eval_steps=5000 \
+	--save_steps=5000 \
+	--fp16 \
+	--lr_scheduler_type="cosine" \
+	--learning_rate=3e-4 \
+	--weight_decay=1e-2 \
+	--warmup_steps=10000
+
+	--predict_with_generate
+	--no_cuda
+	--num_train_epochs=1 \
+
+
+CUDA_VISIBLE_DEVICES=0 python baseline_train.py \
+--train_metadata "/home/vincent0730/ML_chinese_tone_classification/valid10000.csv" \
+--valid_metadata "/home/vincent0730/ML_chinese_tone_classification/test1000.csv" \
+--train_n_samples 10000 \
+--valid_n_samples 1000 \
+--audio_feature mfcc \
+--use_text \
+--text_feature pinyin \
+--model custom_cnn_sum \
+--device cuda \
+--mixed_precision fp16 \
+--epochs 200 \
+--batch_size 1000 \
+--run_name baseline_CustomTextCNNSum_Pinyin_MFCC
+
+
+deepspeed --include localhost:1 \
+audio_spectrogram.py \
+--train_metadata="valid10000.csv" \
+--eval_metadata="test1000.csv" \
+--model_name_or_path="MIT/ast-finetuned-audioset-10-10-0.4593" \
+--output_dir="audio_spectrogram_test_cosine" \
+--do_train \
+--do_eval \
+--seed=42 \
+--audio_column_name="path" \
+--ignore_mismatched_sizes \
+--max_train_samples=10000 \
+--max_eval_samples=1000 \
+--per_device_train_batch_size=48 \
+--per_device_eval_batch_size=48 \
+--max_steps=200000 \
+--evaluation_strategy="steps" \
+--eval_steps=200 \
+--save_steps=200 \
+--fp16 \
+--lr_scheduler_type="cosine" \
+--learning_rate=3e-4 \
+--weight_decay=1e-2 \
+--warmup_steps=200
+
+
+CUDA_VISIBLE_DEVICES=1 python audio_spectrogram_text.py \
+	--train_metadata="train500000.csv" \
+	--eval_metadata="valid10000.csv" \
+	--audio_model_name_or_path="MIT/ast-finetuned-audioset-10-10-0.4593" \
+	--text_model_name_or_path="distilbert-base-uncased" \
+	--output_dir="dualencoder_test_cosine" \
+	--do_train \
+	--do_eval \
+	--seed=42 \
+	--audio_column_name="path" \
+	--ignore_mismatched_sizes \
+	--max_train_samples=500000 \
+	--max_eval_samples=10000 \
+	--per_device_train_batch_size=32 \
+	--per_device_eval_batch_size=32 \
+	--eval_steps=1500 \
+	--learning_rate=1e-4 \
+	--fp16
+
+	--evaluation_strategy="steps" \
+	--lr_scheduler_type="cosine" \
+	--weight_decay=1e-2 \
+	--warmup_steps=10000 \
+	--max_steps=21 \
+	--save_steps=10 \
+	--no_cuda \
+
+
+CUDA_VISIBLE_DEVICES=1 python wav2vec2_text_dualencoder.py \
+	--train_metadata="train500000.csv" \
+	--eval_metadata="valid10000.csv" \
+	--audio_model_name_or_path="TencentGameMate/chinese-hubert-base" \
+	--text_model_name_or_path="distilbert-base-uncased" \
+	--output_dir="dualencoder_test_cosine" \
+	--do_train \
+	--do_eval \
+	--seed=42 \
+	--audio_column_name="path" \
+	--max_train_samples=500000 \
+	--max_eval_samples=10000 \
+	--per_device_train_batch_size=64 \
+	--per_device_eval_batch_size=64 \
+	--eval_steps=1500 \
+	--learning_rate=1e-4 \
+	--fp16
+
+
+train_metadata: "/home/vincent0730/ML_chinese_tone_classification/test10.csv"
+eval_metadata: "/home/vincent0730/ML_chinese_tone_classification/test10.csv"
+model_name_or_path: "MIT/ast-finetuned-audioset-10-10-0.4593"
+audio_column_name: "path"
